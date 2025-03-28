@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #60ad5e;
+            --primary-dark: #005005;
+            --light: #f5f5f5;
+            --dark: #212121;
+            --gray: #757575;
+            --border-radius: 8px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.25s ease;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8f9fa;
+            color: var(--dark);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            height: 100vh;
+            position: fixed;
+            width: 280px;
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary);
+            background: rgba(46, 125, 50, 0.05);
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Cards */
+        .dashboard-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .dashboard-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title i {
+            margin-right: 0.5rem;
+            color: var(--primary);
+        }
+
+        /* Profile Section */
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Product Table */
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .product-table th {
+            text-align: left;
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.02);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .product-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            vertical-align: middle;
+        }
+
+        .product-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .badge-stock {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-out {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Forms */
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: var(--border-radius);
+            padding: 0.5rem 0.75rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background: white;
+        }
+
+        .btn-outline:hover {
+            background: rgba(46, 125, 50, 0.05);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 240px;
+            }
+
+            .main-content {
+                margin-left: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <small class="text-muted">Farmer Dashboard</small>
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item">
+                <a href="#" class="nav-link active" id="dashboard-tab">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" id="profile-tab">
+                    <i class="bi bi-person"></i>
+                    <span>Profile</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" id="products-tab">
+                    <i class="bi bi-basket"></i>
+                    <span>Products</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" id="orders-tab">
+                    <i class="bi bi-receipt"></i>
+                    <span>Orders</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" id="reviews-tab">
+                    <i class="bi bi-star"></i>
+                    <span>Reviews</span>
+                </a>
+            </div>
+            <div class="nav-item mt-4">
+                <a href="#" class="nav-link text-danger" id="logout-btn">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard Section -->
+        <div id="dashboard-section">
+            <div class="dashboard-header">
+                <h3 class="dashboard-title">Dashboard Overview</h3>
+                <div class="text-muted">Welcome back, <span id="farmer-name">Abhay Maurya</span></div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="dashboard-card">
+                        <h5 class="card-title"><i class="bi bi-basket"></i> Total Products</h5>
+                        <h2 class="text-primary" id="total-products">12</h2>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dashboard-card">
+                        <h5 class="card-title"><i class="bi bi-receipt"></i> Total Orders</h5>
+                        <h2 class="text-primary" id="total-orders">24</h2>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dashboard-card">
+                        <h5 class="card-title"><i class="bi bi-star"></i> Average Rating</h5>
+                        <h2 class="text-primary" id="avg-rating">4.7</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h5 class="card-title"><i class="bi bi-graph-up"></i> Recent Sales</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-orders">
+                            <!-- Orders will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profile-section" style="display: none;">
+            <div class="dashboard-header">
+                <h3 class="dashboard-title">Profile Management</h3>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <img src="images/IMG-20250328-WA0010.jpg" class="profile-img mb-3" id="profile-image">
+                        <input type="file" id="profile-image-upload" class="d-none" accept="image/*">
+                        <button class="btn btn-outline btn-sm"
+                            onclick="document.getElementById('profile-image-upload').click()">
+                            Change Photo
+                        </button>
+                    </div>
+                    <div class="col-md-8">
+                        <form id="profile-form">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="farmer-name-input" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="farmer-email" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Phone</label>
+                                    <input type="tel" class="form-control" id="farmer-phone">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Farm Name</label>
+                                    <input type="text" class="form-control" id="farm-name">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Farm Location</label>
+                                <input type="text" class="form-control" id="farm-location">
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Bank Name</label>
+                                    <input type="text" class="form-control" id="bank-name">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Account Number</label>
+                                    <input type="text" class="form-control" id="account-number">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">IFSC Code</label>
+                                    <input type="text" class="form-control" id="ifsc-code">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Farm Size (acres)</label>
+                                    <input type="number" class="form-control" id="farm-size">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <div id="products-section" style="display: none;">
+            <div class="dashboard-header">
+                <h3 class="dashboard-title">Product Management</h3>
+                <button class="btn btn-primary" id="add-product-btn">
+                    <i class="bi bi-plus"></i> Add Product
+                </button>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="table-responsive">
+                    <table class="product-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Rating</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table-body">
+                            <!-- Products will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Product Modal -->
+        <div class="modal fade" id="product-modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal-title">Add New Product</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="product-form">
+                            <input type="hidden" id="product-id">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Product Name</label>
+                                    <input type="text" class="form-control" id="product-name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Category</label>
+                                    <select class="form-select" id="product-category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="Fruits">Fruits</option>
+                                        <option value="Vegetables">Vegetables</option>
+                                        <option value="Dairy">Dairy</option>
+                                        <option value="Grains">Grains</option>
+                                        <option value="Sweeteners">Sweeteners</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Price (₹)</label>
+                                    <input type="number" class="form-control" id="product-price" step="0.01" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" id="product-quantity" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Weight (kg)</label>
+                                    <input type="number" class="form-control" id="product-weight" step="0.01">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" id="product-description" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Availability</label>
+                                <select class="form-select" id="product-availability">
+                                    <option value="In Stock">In Stock</option>
+                                    <option value="Out of Stock">Out of Stock</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Shipping Info</label>
+                                <input type="text" class="form-control" id="product-shipping">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Product Images</label>
+                                <input type="file" class="form-control" id="product-images" multiple accept="image/*">
+                                <small class="text-muted">Upload multiple images for the product</small>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-outline me-2"
+                                    data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Product</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="orders-section" style="display: none;">
+            <div class="dashboard-header">
+                <h3 class="dashboard-title">Order Management</h3>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="table-responsive">
+                    <table class="product-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body">
+                            <!-- Orders will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div id="reviews-section" style="display: none;">
+            <div class="dashboard-header">
+                <h3 class="dashboard-title">Product Reviews</h3>
+            </div>
+
+            <div class="dashboard-card">
+                <div id="reviews-container">
+                    <!-- Reviews will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Remove active class from all tabs
+                document.querySelectorAll('.nav-link').forEach(nav => {
+                    nav.classList.remove('active');
+                });
+
+                // Add active class to clicked tab
+                this.classList.add('active');
+
+                // Hide all sections
+                document.querySelectorAll('#dashboard-section, #profile-section, #products-section, #orders-section, #reviews-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+
+                // Show selected section
+                const target = this.id.replace('-tab', '-section');
+                document.getElementById(target).style.display = 'block';
+            });
+        });
+
+        // Initialize Bootstrap modal
+        const productModal = new bootstrap.Modal(document.getElementById('product-modal'));
+
+        // Add product button click
+        document.getElementById('add-product-btn').addEventListener('click', () => {
+            document.getElementById('modal-title').textContent = 'Add New Product';
+            document.getElementById('product-form').reset();
+            document.getElementById('product-id').value = '';
+            productModal.show();
+        });
+
+        // Load farmer data
+        async function loadFarmerData() {
+            try {
+                // In a real app, you would fetch this from your API
+                const farmerId = 'dd7f362a-3cad-4224-ad65-c57c01062749';
+                const response = await fetch(`/api/farmers/${farmerId}`);
+                const farmer = await response.json();
+
+                // Update profile fields
+                document.getElementById('farmer-name').textContent = farmer.name;
+                document.getElementById('farmer-name-input').value = farmer.name;
+                document.getElementById('farmer-email').value = farmer.email;
+                document.getElementById('farmer-phone').value = farmer.phone;
+                document.getElementById('farm-name').value = farmer.farm_name;
+                document.getElementById('farm-location').value = farmer.farm_location;
+                document.getElementById('farm-size').value = farmer.farm_size;
+                document.getElementById('bank-name').value = farmer.bank_name;
+                document.getElementById('account-number').value = farmer.account_number;
+                document.getElementById('ifsc-code').value = farmer.ifsc_code;
+
+                if (farmer.profile_image_url) {
+                    document.getElementById('profile-image').src = farmer.profile_image_url;
+                }
+
+            } catch (error) {
+                console.error('Error loading farmer data:', error);
+                alert('Failed to load farmer data');
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const farmerId = 'dd7f362a-3cad-4224-ad65-c57c01062749';
+                const response = await fetch(`/api/products/farmer/${farmerId}`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
+
+                const products = await response.json();
+                const tableBody = document.getElementById('products-table-body');
+                tableBody.innerHTML = '';
+
+                if (products.length === 0) {
+                    tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        <i class="bi bi-basket fs-1 text-muted"></i>
+                        <p class="mt-2">No products found</p>
+                        <button class="btn btn-sm btn-primary" id="add-first-product">
+                            <i class="bi bi-plus"></i> Add Your First Product
+                        </button>
+                    </td>
+                </tr>
+            `;
+                    document.getElementById('add-first-product').addEventListener('click', () => {
+                        document.getElementById('add-product-btn').click();
+                    });
+                    return;
+                }
+
+                products.forEach(product => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                <td><img src="${product.banner_image_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'}" 
+                     class="product-img" alt="${product.name}"></td>
+                <td>${product.name}</td>
+                <td>₹${parseFloat(product.price).toFixed(2)}</td>
+                <td>
+                    <span class="badge ${product.availability === 'In Stock' ? 'badge-stock' : 'badge-out'}">
+                        ${product.availability}
+                    </span>
+                </td>
+                <td>${generateStars(product.rating)} (${product.total_reviews || 0})</td>
+                <td>
+                    <button class="btn btn-sm btn-outline me-1 edit-product" data-id="${product.product_id}">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline text-danger delete-product" data-id="${product.product_id}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+                    tableBody.appendChild(row);
+                });
+
+                // Add event listeners
+                document.querySelectorAll('.edit-product').forEach(btn => {
+                    btn.addEventListener('click', () => editProduct(btn.dataset.id));
+                });
+
+                document.querySelectorAll('.delete-product').forEach(btn => {
+                    btn.addEventListener('click', () => deleteProduct(btn.dataset.id));
+                });
+
+                // Update product count
+                document.getElementById('total-products').textContent = products.length;
+
+            } catch (error) {
+                console.error('Error loading products:', error);
+                alert('Failed to load products: ' + error.message);
+            }
+        }
+
+        //edit product
+        async function editProduct(productId) {
+            try {
+                console.log('Fetching product with ID:', productId); // Debug log
+
+                const response = await fetch(`/api/products/${productId}`);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch product');
+                }
+
+                const product = await response.json();
+                console.log('Product data:', product); // Debug log
+
+                // Populate the form
+                document.getElementById('modal-title').textContent = 'Edit Product';
+                document.getElementById('product-id').value = product.product_id;
+                document.getElementById('product-name').value = product.name || '';
+                document.getElementById('product-category').value = product.category || '';
+                document.getElementById('product-price').value = product.price || 0;
+                document.getElementById('product-quantity').value = product.quantity || 0;
+                document.getElementById('product-weight').value = product.weight || 0;
+                document.getElementById('product-description').value = product.description || '';
+                document.getElementById('product-availability').value = product.availability || 'In Stock';
+                document.getElementById('product-shipping').value = product.shipping_info || '';
+
+                // Show the modal
+                productModal.show();
+
+            } catch (error) {
+                console.error('Error loading product:', error);
+                alert(`Failed to load product: ${error.message}`);
+
+                // Optionally show more details in console for debugging
+                console.error('Full error details:', {
+                    error: error,
+                    productId: productId,
+                    timestamp: new Date().toISOString()
+                });
+            }
+        }
+        // Delete product
+        async function deleteProduct(productId) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                try {
+                    const response = await fetch(`/api/products/${productId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        alert('Product deleted successfully');
+                        loadProducts();
+                    } else {
+                        throw new Error('Failed to delete product');
+                    }
+                } catch (error) {
+                    console.error('Error deleting product:', error);
+                    alert('Failed to delete product');
+                }
+            }
+        }
+
+        // Load orders
+        async function loadOrders() {
+            try {
+                const farmerId = 'dd7f362a-3cad-4224-ad65-c57c01062749';
+                const ordersTableBody = document.getElementById('orders-table-body');
+
+                // Show loading state
+                ordersTableBody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading orders...</span>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+                const response = await fetch(`/api/orders?farmer_id=${farmerId}`);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || 'Failed to fetch orders');
+                }
+
+                const orders = await response.json();
+                ordersTableBody.innerHTML = '';
+
+                if (orders.length === 0) {
+                    ordersTableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        <i class="bi bi-cart-x fs-1 text-muted"></i>
+                        <p class="mt-2">No orders found</p>
+                    </td>
+                </tr>
+            `;
+                    document.getElementById('total-orders').textContent = '0';
+                    return;
+                }
+
+                orders.forEach(order => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                <td>${order.order_id?.substring(0, 8) || 'N/A'}...</td>
+                <td>${order.order_date ? new Date(order.order_date).toLocaleDateString() : 'N/A'}</td>
+                <td>${order.user_name || 'Guest Customer'}</td>
+                <td>${order.items_count || 0}</td>
+                <td>₹${order.total_amount ? parseFloat(order.total_amount).toFixed(2) : '0.00'}</td>
+                <td>
+                    <span class="badge ${getStatusBadgeClass(order.status || 'Pending')}">
+                        ${order.status || 'Pending'}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-outline view-order" data-id="${order.order_id}">
+                        <i class="bi bi-eye"></i> View
+                    </button>
+                </td>
+            `;
+                    ordersTableBody.appendChild(row);
+                });
+
+                // Add event listeners to view buttons
+                document.querySelectorAll('.view-order').forEach(btn => {
+                    btn.addEventListener('click', () => viewOrderDetails(btn.dataset.id));
+                });
+
+                // Update order count
+                document.getElementById('total-orders').textContent = orders.length;
+
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                document.getElementById('orders-table-body').innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-4 text-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <p class="mt-2">${error.message || 'Failed to load orders'}</p>
+                    <button class="btn btn-sm btn-outline-primary" onclick="loadOrders()">
+                        <i class="bi bi-arrow-clockwise"></i> Retry
+                    </button>
+                </td>
+            </tr>
+        `;
+            }
+        }
+
+        async function viewOrderDetails(orderId) {
+            console.log('Viewing order:', orderId);
+        }
+
+        function getStatusBadgeClass(status) {
+            switch (status) {
+                case 'Pending': return 'bg-secondary';
+                case 'Processing': return 'bg-info text-dark';
+                case 'Shipped': return 'bg-primary';
+                case 'Delivered': return 'bg-success';
+                case 'Cancelled': return 'bg-danger';
+                default: return 'bg-light text-dark';
+            }
+        }
+
+        // Load reviews
+        async function loadReviews() {
+            try {
+                const farmerId = 'dd7f362a-3cad-4224-ad65-c57c01062749';
+                const response = await fetch(`/api/reviews?farmer_id=${farmerId}`);
+                const reviews = await response.json();
+
+                const container = document.getElementById('reviews-container');
+                container.innerHTML = '';
+
+                if (reviews.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-4">
+                            <p class="text-muted">No reviews yet for your products</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                reviews.forEach(review => {
+                    const reviewEl = document.createElement('div');
+                    reviewEl.className = 'review-item border-bottom pb-3 mb-3';
+                    reviewEl.innerHTML = `
+                        <div class="d-flex justify-content-between mb-2">
+                            <h5>${review.product_name}</h5>
+                            <small class="text-muted">${new Date(review.created_at).toLocaleDateString()}</small>
+                        </div>
+                        <div class="mb-2">
+                            ${generateStars(review.rating)}
+                            <span class="ms-2">${review.user_name}</span>
+                        </div>
+                        <p>${review.comment || 'No comment provided'}</p>
+                    `;
+                    container.appendChild(reviewEl);
+                });
+
+                // Calculate average rating
+                const avgRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+                document.getElementById('avg-rating').textContent = avgRating.toFixed(1);
+
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                alert('Failed to load reviews');
+            }
+        }
+
+        // Generate star rating HTML
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+            const emptyStars = 5 - fullStars - halfStar;
+
+            return `
+                ${'<i class="bi bi-star-fill text-warning"></i>'.repeat(fullStars)}
+                ${halfStar ? '<i class="bi bi-star-half text-warning"></i>' : ''}
+                ${'<i class="bi bi-star text-warning"></i>'.repeat(emptyStars)}
+            `;
+        }
+
+        // Form submissions
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            try {
+                const farmerId = 'dd7f362a-3cad-4224-ad65-c57c01062749';
+                const formData = {
+                    name: document.getElementById('farmer-name-input').value,
+                    email: document.getElementById('farmer-email').value,
+                    phone: document.getElementById('farmer-phone').value,
+                    farm_name: document.getElementById('farm-name').value,
+                    farm_location: document.getElementById('farm-location').value,
+                    farm_size: document.getElementById('farm-size').value,
+                    bank_name: document.getElementById('bank-name').value,
+                    account_number: document.getElementById('account-number').value,
+                    ifsc_code: document.getElementById('ifsc-code').value
+                };
+
+                const response = await fetch(`/api/farmers/${farmerId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('Profile updated successfully');
+                    loadFarmerData();
+                } else {
+                    throw new Error('Failed to update profile');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Failed to update profile');
+            }
+        });
+
+        document.getElementById('product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            try {
+                const farmerId = 'dd7f362a-3cad-4224-ad65-c57c01062749';
+                const productId = document.getElementById('product-id').value;
+                const formData = {
+                    farmer_id: farmerId,
+                    name: document.getElementById('product-name').value,
+                    category: document.getElementById('product-category').value,
+                    price: document.getElementById('product-price').value,
+                    quantity: document.getElementById('product-quantity').value,
+                    weight: document.getElementById('product-weight').value,
+                    description: document.getElementById('product-description').value,
+                    availability: document.getElementById('product-availability').value,
+                    shipping_info: document.getElementById('product-shipping').value
+                };
+
+                const method = productId ? 'PUT' : 'POST';
+                const url = productId ? `/api/products/${productId}` : '/api/products';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert(`Product ${productId ? 'updated' : 'added'} successfully`);
+                    productModal.hide();
+                    loadProducts();
+                } else {
+                    throw new Error(`Failed to ${productId ? 'update' : 'add'} product`);
+                }
+            } catch (error) {
+                console.error('Error saving product:', error);
+                alert('Failed to save product');
+            }
+        });
+
+        // Image upload handling
+        document.getElementById('profile-image-upload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const farmerId = 'dd7f362a-3cad-4224-ad65-c57c01062749';
+                const response = await fetch(`/api/farmers/${farmerId}/image`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById('profile-image').src = result.imageUrl;
+                    alert('Profile image updated successfully');
+                } else {
+                    throw new Error('Failed to upload image');
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                alert('Failed to upload image');
+            }
+        });
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFarmerData();
+            loadProducts();
+            loadOrders();
+            loadReviews();
+        });
+    </script>
+    <script type="module" src="js/auth/auth.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-2xl mx-auto bg-white p-6 shadow-md rounded-lg">
+        <h2 class="text-2xl font-semibold mb-4">Your Cart</h2>
+        <div id="cart-items" class="space-y-4"></div>
+        <div class="mt-4">
+            <p class="text-lg font-semibold">Total: ₹<span id="total-amount">0</span></p>
+        </div>
+        <div class="mt-6">
+            <input type="text" id="name" placeholder="Enter your name" class="w-full p-2 border rounded mb-2">
+            <input type="tel" id="number" placeholder="Enter your phone number" class="w-full p-2 border rounded mb-4">
+            <button id="checkout" class="bg-blue-500 text-white px-4 py-2 rounded w-full">Checkout</button>
+        </div>
+    </div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const cartItemsContainer = document.getElementById("cart-items");
+        const totalAmountSpan = document.getElementById("total-amount");
+        const checkoutButton = document.getElementById("checkout");
+
+        function updateCart() {
+            cartItemsContainer.innerHTML = "";
+            let totalAmount = 0;
+
+            cart.forEach((item, index) => {
+                totalAmount += item.price * item.quantity;
+                cartItemsContainer.innerHTML += `
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <span>${item.name} (x${item.quantity})</span>
+                        <span>₹${item.price * item.quantity}</span>
+                        <button onclick="removeItem(${index})" class="text-red-500">Remove</button>
+                    </div>
+                `;
+            });
+
+            totalAmountSpan.textContent = totalAmount;
+        }
+
+        function removeItem(index) {
+            cart.splice(index, 1);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            updateCart();
+        }
+
+        checkoutButton.addEventListener("click", async () => {
+            const name = document.getElementById("name").value;
+            const number = document.getElementById("number").value;
+            const amount = totalAmountSpan.textContent;
+            
+            if (!name || !number) {
+                alert("Please enter your name and phone number.");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:3000/create-order", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, number, amount })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    window.location.href = data.payment_url;
+                } else {
+                    alert("Payment failed. Try again.");
+                }
+            } catch (error) {
+                console.error("Error processing payment:", error);
+                alert("Something went wrong. Try again later.");
+            }
+        });
+
+        updateCart();
+    </script>
+</body>
+</html>

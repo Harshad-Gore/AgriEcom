@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Location Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <style>
+        #map { height: 500px; }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="container mx-auto bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold mb-4 text-center text-green-700">Farm Location Tracker</h2>
+        
+        <div id="locationInfo" class="text-center mb-4 font-semibold">
+            Click on the map to set your farm location
+        </div>
+        
+        <div id="map" class="mb-6 rounded-lg"></div>
+        
+        <div class="flex justify-center space-x-4">
+            <button onclick="getCurrentLocation()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Use My Current Location
+            </button>
+            <button onclick="saveLocation()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                Save This Location
+            </button>
+            <button onclick="startLiveTracking()" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+                Start Live Tracking
+            </button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Get farmer ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const farmerId = urlParams.get('farmerId');
+
+        // Initialize map
+        var map = L.map('map').setView([18.5360, 73.8587], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Marker for selected location
+        var selectedMarker = null;
+        var liveTrackingMarker = null;
+        var liveTrackingActive = false;
+        var liveTrackingWatch = null;
+
+        // Current selected location
+        var currentLocation = null;
+
+        // Get current location
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // Remove previous marker if exists
+                        if (selectedMarker) {
+                            map.removeLayer(selectedMarker);
+                        }
+
+                        // Set map view and add marker
+                        map.setView([lat, lng], 13);
+                        selectedMarker = L.marker([lat, lng]).addTo(map);
+                        
+                        // Update current location
+                        currentLocation = {
+                            latitude: lat,
+                            longitude: lng
+                        };
+
+                        // Update location info
+                        document.getElementById('locationInfo').textContent = 
+                            `Selected Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                    },
+                    (error) => {
+                        alert('Error getting location: ' + error.message);
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+
+        // Handle map click
+        map.on('click', function(e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+
+            // Remove previous marker if exists
+            if (selectedMarker) {
+                map.removeLayer(selectedMarker);
+            }
+
+            // Add new marker
+            selectedMarker = L.marker([lat, lng]).addTo(map);
+            
+            // Update current location
+            currentLocation = {
+                latitude: lat,
+                longitude: lng
+            };
+
+            // Update location info
+            document.getElementById('locationInfo').textContent = 
+                `Selected Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        });
+
+        // Save location to database
+        function saveLocation() {
+            if (!currentLocation) {
+                alert('Please select a location first');
+                return;
+            }
+
+            // Prepare data to send
+            const locationData = {
+                farmer_id: localStorage.getItem('userId'),
+                latitude: currentLocation.latitude,
+                longitude: currentLocation.longitude
+            };
+
+            // Send to server
+            fetch('http://localhost:3000/update-farmer-location', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(locationData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Location saved successfully!');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to save location. Please try again. Error: ' + error.message);
+            });
+        }
+
+        // Start Live Tracking
+        function startLiveTracking() {
+            if (!liveTrackingActive) {
+                if (navigator.geolocation) {
+                    liveTrackingActive = true;
+                    liveTrackingWatch = navigator.geolocation.watchPosition(
+                        (position) => {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+
+                            // Remove previous live tracking marker
+                            if (liveTrackingMarker) {
+                                map.removeLayer(liveTrackingMarker);
+                            }
+
+                            // Add new live tracking marker
+                            liveTrackingMarker = L.marker([lat, lng], {
+                                icon: L.divIcon({
+                                    className: 'bg-red-500 rounded-full w-4 h-4',
+                                    iconSize: [16, 16]
+                                })
+                            }).addTo(map);
+
+                            // Center map on current location
+                            map.setView([lat, lng]);
+
+                            // Send location to server
+                            fetch('http://localhost:3000/update-farmer-location', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    farmer_id: farmerId,
+                                    latitude: lat,
+                                    longitude: lng
+                                })
+                            });
+                        },
+                        (error) => {
+                            alert('Error in live tracking: ' + error.message);
+                            liveTrackingActive = false;
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            maximumAge: 30000,
+                            timeout: 27000
+                        }
+                    );
+                } else {
+                    alert('Geolocation is not supported by this browser.');
+                }
+            } else {
+                // Stop live tracking
+                if (liveTrackingWatch) {
+                    navigator.geolocation.clearWatch(liveTrackingWatch);
+                }
+                liveTrackingActive = false;
+                
+                if (liveTrackingMarker) {
+                    map.removeLayer(liveTrackingMarker);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmers Marketplace</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #60ad5e;
+            --primary-dark: #005005;
+            --light: #f5f5f5;
+            --dark: #212121;
+            --gray: #757575;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8f9fa;
+            color: var(--dark);
+        }
+
+        .farmer-card {
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .farmer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .farmer-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .product-card {
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .badge-organic {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .subscription-modal .day-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .subscription-modal .day-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .subscription-modal .day-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="/">Farmers Marketplace</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/farmers.html">Farmers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="maps.html">Map</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <!-- Farmers List Section (Default View) -->
+        <div id="farmers-list-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Local Farmers</h2>
+                <div class="input-group" style="max-width: 300px;">
+                    <input type="text" class="form-control" placeholder="Search farmers..." id="farmer-search">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row" id="farmers-container">
+                <!-- Farmers will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Farmer Details Section (Shown when a farmer is selected) -->
+        <div id="farmer-details-section" style="display: none;">
+            <button class="btn btn-outline-secondary mb-3" id="back-to-farmers">
+                <i class="bi bi-arrow-left"></i> Back to Farmers
+            </button>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card farmer-card mb-4">
+                        <img src="" class="farmer-img" id="farmer-profile-image" alt="Farmer">
+                        <div class="card-body">
+                            <h3 id="farmer-name"></h3>
+                            <h5 class="text-muted" id="farm-name"></h5>
+                            <p><i class="bi bi-geo-alt"></i> <span id="farm-location"></span></p>
+                            <p><i class="bi bi-rulers"></i> <span id="farm-size"></span> acres</p>
+                            <div id="farmer-certifications"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3>Products Available</h3>
+                        <div class="btn-group">
+                            <button class="btn btn-outline-success btn-sm dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown">
+                                Filter
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" data-filter="all">All Products</a></li>
+                                <li><a class="dropdown-item" href="#" data-filter="vegetables">Vegetables</a></li>
+                                <li><a class="dropdown-item" href="#" data-filter="fruits">Fruits</a></li>
+                                <li><a class="dropdown-item" href="#" data-filter="dairy">Dairy</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="row" id="products-container">
+                        <!-- Products will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription Modal -->
+    <div class="modal fade" id="subscriptionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Setup Daily Delivery</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="subscription-form">
+                        <input type="hidden" id="subscription-product-id">
+                        <input type="hidden" id="subscription-farmer-id">
+
+                        <div class="mb-3">
+                            <label class="form-label">Delivery Frequency</label>
+                            <select class="form-select" id="delivery-frequency">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="weekly-options" style="display: none;">
+                            <label class="form-label">Delivery Days</label>
+                            <div class="day-selector">
+                                <div class="day-btn" data-day="mon">Mon</div>
+                                <div class="day-btn" data-day="tue">Tue</div>
+                                <div class="day-btn" data-day="wed">Wed</div>
+                                <div class="day-btn" data-day="thu">Thu</div>
+                                <div class="day-btn" data-day="fri">Fri</div>
+                                <div class="day-btn" data-day="sat">Sat</div>
+                                <div class="day-btn" data-day="sun">Sun</div>
+                            </div>
+                            <input type="hidden" id="selected-days">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="start-date" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="subscription-quantity" min="1" value="1"
+                                required>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-outline-secondary me-2"
+                                data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success">Subscribe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // DOM Elements
+        const farmersContainer = document.getElementById('farmers-container');
+        const productsContainer = document.getElementById('products-container');
+        const farmersListSection = document.getElementById('farmers-list-section');
+        const farmerDetailsSection = document.getElementById('farmer-details-section');
+        const backToFarmersBtn = document.getElementById('back-to-farmers');
+        const subscriptionModal = new bootstrap.Modal('#subscriptionModal');
+
+        // Current farmer ID
+        let currentFarmerId = null;
+
+        // Load all farmers
+        async function loadFarmers() {
+            try {
+                const response = await fetch('/api/farmers');
+                const farmers = await response.json();
+
+                farmersContainer.innerHTML = '';
+
+                if (farmers.length === 0) {
+                    farmersContainer.innerHTML = `
+                        <div class="col-12 text-center py-5">
+                            <i class="bi bi-emoji-frown fs-1"></i>
+                            <h4 class="mt-3">No farmers found</h4>
+                            <p class="text-muted">We couldn't find any farmers in your area</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                farmers.forEach(farmer => {
+                    const farmerCard = document.createElement('div');
+                    farmerCard.className = 'col-md-4 mb-4';
+                    farmerCard.innerHTML = `
+                        <div class="card farmer-card h-100">
+                            <img src="${farmer.profile_image_url || 'images/IMG-20250328-WA0003.jpg'}" 
+                                 class="farmer-img" alt="${farmer.name}">
+                            <div class="card-body">
+                                <h4>${farmer.name}</h4>
+                                <h6 class="text-muted">${farmer.farm_name}</h6>
+                                <p class="text-muted mb-1">
+                                    <i class="bi bi-geo-alt"></i> ${farmer.farm_location}
+                                </p>
+                                <button class="btn btn-outline-success mt-2 view-farmer-btn" 
+                                        data-id="${farmer.farmer_id}">
+                                    View Products
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    farmersContainer.appendChild(farmerCard);
+                });
+
+                // Add event listeners to view buttons
+                document.querySelectorAll('.view-farmer-btn').forEach(btn => {
+                    btn.addEventListener('click', () => viewFarmer(btn.dataset.id));
+                });
+
+            } catch (error) {
+                console.error('Error loading farmers:', error);
+                alert('Failed to load farmers');
+            }
+        }
+
+        // View farmer details
+        async function viewFarmer(farmerId) {
+            try {
+                console.log('Loading farmer with ID:', farmerId); // Debug log
+
+                currentFarmerId = farmerId;
+                const response = await fetch(`/api/farmers/${farmerId}/details`);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch farmer details');
+                }
+
+                const data = await response.json();
+                console.log('Farmer data:', data); // Debug log
+
+                // Update farmer info
+                const profileImage = document.getElementById('farmer-profile-image');
+                profileImage.src = data.farmer.profile_image_url || 'images/IMG-20250328-WA0003.jpg';
+                profileImage.alt = data.farmer.name;
+
+                document.getElementById('farmer-name').textContent = data.farmer.name || 'No name provided';
+                document.getElementById('farm-name').textContent = data.farmer.farm_name || 'No farm name';
+                document.getElementById('farm-location').textContent = data.farmer.farm_location || 'Location not specified';
+                document.getElementById('farm-size').textContent = data.farmer.farm_size || 'Unknown';
+
+                // Update certifications
+                const certsElement = document.getElementById('farmer-certifications');
+                if (data.farmer.certifications && data.farmer.certifications.length > 0) {
+                    certsElement.innerHTML = data.farmer.certifications.map(cert =>
+                        `<span class="badge badge-organic me-1">${cert}</span>`
+                    ).join('');
+                } else {
+                    certsElement.innerHTML = '<span class="text-muted">No certifications</span>';
+                }
+
+                // Update products
+                const productsContainer = document.getElementById('products-container');
+                productsContainer.innerHTML = '';
+
+                if (!data.products || data.products.length === 0) {
+                    productsContainer.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <i class="bi bi-basket fs-1"></i>
+                    <h4 class="mt-3">No products available</h4>
+                    <p class="text-muted">This farmer hasn't added any products yet</p>
+                </div>
+            `;
+                } else {
+                    data.products.forEach(product => {
+                        const productCard = document.createElement('div');
+                        productCard.className = 'col-md-6 col-lg-4 mb-4';
+                        productCard.innerHTML = `
+                    <div class="card product-card h-100">
+                        <img src="${product.banner_image_url || 'images/IMG-20250328-WA0003.jpg'}" 
+                             class="product-img" alt="${product.name}">
+                        <div class="card-body">
+                            <h5>${product.name}</h5>
+                            <p class="text-muted">${product.category || 'Uncategorized'}</p>
+                            <h5 class="text-success">₹${parseFloat(product.price || 0).toFixed(2)}</h5>
+                            <div class="d-flex justify-content-between mt-3">
+                                <button class="btn btn-sm btn-outline-success add-to-cart-btn" 
+                                        data-id="${product.product_id}">
+                                    <i class="bi bi-cart-plus"></i> Add to Cart
+                                </button>
+                                <button class="btn btn-sm btn-success subscribe-btn" 
+                                        data-id="${product.product_id}">
+                                    <i class="bi bi-calendar-check"></i> Subscribe
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                        productsContainer.appendChild(productCard);
+                    });
+
+                    // Add event listeners
+                    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                        btn.addEventListener('click', () => addToCart(btn.dataset.id));
+                    });
+
+                    document.querySelectorAll('.subscribe-btn').forEach(btn => {
+                        btn.addEventListener('click', () => setupSubscription(btn.dataset.id));
+                    });
+                }
+
+                // Switch to details view
+                farmersListSection.style.display = 'none';
+                farmerDetailsSection.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading farmer details:', error);
+
+                // Show more detailed error message
+                const errorMessage = error.message.includes('Failed to fetch')
+                    ? "Couldn't connect to server. Please check your network connection."
+                    : error.message;
+
+                alert(`Failed to load farmer details: ${errorMessage}`);
+
+                // Optionally revert to farmers list view
+                farmersListSection.style.display = 'block';
+                farmerDetailsSection.style.display = 'none';
+            }
+        }
+        // Setup subscription modal
+        function setupSubscription(productId) {
+            document.getElementById('subscription-product-id').value = productId;
+            document.getElementById('subscription-farmer-id').value = currentFarmerId;
+
+            // Set default start date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('start-date').valueAsDate = tomorrow;
+
+            subscriptionModal.show();
+        }
+
+        // Handle frequency change
+        document.getElementById('delivery-frequency').addEventListener('change', function () {
+            const weeklyOptions = document.getElementById('weekly-options');
+            weeklyOptions.style.display = this.value === 'weekly' ? 'block' : 'none';
+        });
+
+        // Handle day selection
+        document.querySelectorAll('.day-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                this.classList.toggle('active');
+                updateSelectedDays();
+            });
+        });
+
+        function updateSelectedDays() {
+            const selectedDays = Array.from(document.querySelectorAll('.day-btn.active'))
+                .map(btn => btn.dataset.day);
+            document.getElementById('selected-days').value = JSON.stringify(selectedDays);
+        }
+
+        // Handle subscription form submission
+        document.getElementById('subscription-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const userId = localStorage.getItem('userId');
+            if (!userId) {
+                alert('Please login to subscribe');
+                return;
+            }
+
+            const productId = document.getElementById('subscription-product-id').value;
+            const farmerId = document.getElementById('subscription-farmer-id').value;
+            const frequency = document.getElementById('delivery-frequency').value;
+            const startDate = document.getElementById('start-date').value;
+            const quantity = document.getElementById('subscription-quantity').value;
+            const deliveryDays = frequency === 'weekly'
+                ? document.getElementById('selected-days').value
+                : null;
+
+            try {
+                const response = await fetch('/api/subscriptions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        farmer_id: farmerId,
+                        product_id: productId,
+                        frequency,
+                        delivery_days: deliveryDays ? JSON.parse(deliveryDays) : null,
+                        start_date: startDate,
+                        quantity
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Subscription created successfully!');
+                    subscriptionModal.hide();
+                } else {
+                    throw new Error('Failed to create subscription');
+                }
+            } catch (error) {
+                console.error('Error creating subscription:', error);
+                alert('Failed to create subscription');
+            }
+        });
+
+        // Back to farmers list
+        backToFarmersBtn.addEventListener('click', function () {
+            farmersListSection.style.display = 'block';
+            farmerDetailsSection.style.display = 'none';
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFarmers();
+        });
+    </script>
+</body>
+
+</html>

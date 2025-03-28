@@ -614,40 +614,7 @@
     </div>
   </header>
 
-  <section id="latest-products" class="products-carousel">
-    <div class="container-lg overflow-hidden pb-5">
-      <div class="row">
-        <div class="col-md-12">
-
-          <div class="section-header d-flex justify-content-between my-4">
-
-            <h2 class="section-title">Just arrived</h2>
-
-            <div class="d-flex align-items-center">
-              <a href="#" class="btn btn-primary me-2">View All</a>
-              <div class="swiper-buttons">
-                <button class="swiper-prev products-carousel-prev btn btn-primary">❮</button>
-                <button class="swiper-next products-carousel-next btn btn-primary">❯</button>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-12">
-
-          <div class="swiper">
-            <div class="swiper-wrapper" id="products-container">
-
-            </div>
-          </div>
-          <!-- / products-carousel -->
-
-        </div>
-      </div>
-    </div>
-  </section>
+  
 
   <section id="add-product" class="container my-5">
     <h2 class="text-center mb-4">Add New Product</h2>
@@ -698,32 +665,6 @@
       <button type="submit" class="btn btn-primary">Add Product</button>
     </form>
   </section>
-  <script>
-    document.getElementById('add-product-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const formData = new FormData(e.target);
-
-      try {
-        const response = await fetch('/api/add/products', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          alert('Product added successfully!');
-          e.target.reset();
-        } else {
-          const error = await response.json();
-          alert(`Error: ${error.error}`);
-        }
-      } catch (err) {
-        console.error('Error submitting form:', err);
-        alert('Failed to add product.');
-      }
-    });
-  </script>
   <script src="js/jquery-1.11.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Search | Fresh Finds</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2e7d32;
+            /* Deep green */
+            --primary-light: #60ad5e;
+            /* Medium green */
+            --primary-lighter: #e8f5e9;
+            /* Very light green */
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+            --dark-gray: #333333;
+            --text-gray: #666666;
+            --border-radius: 8px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.25s ease;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--white);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        /* Search Header */
+        .search-header {
+            background-color: var(--white);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: var(--white);
+            border: 1px solid #e0e0e0;
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            transition: var(--transition);
+        }
+
+        .search-bar:focus-within {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 0.5rem;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .search-btn {
+            background: var(--primary);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-btn:hover {
+            background: var(--primary-light);
+            transform: scale(1.05);
+        }
+
+        /* Search Results */
+        .results-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .results-title {
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-lighter);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Product Card */
+        .product-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(46, 125, 50, 0.2);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: var(--light-gray);
+        }
+
+        .product-body {
+            padding: 1.25rem;
+        }
+
+        .product-title {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--dark-gray);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-price {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .current-price {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .original-price {
+            text-decoration: line-through;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .discount-badge {
+            background: var(--primary-light);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .review-count {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            margin-left: 0.25rem;
+        }
+
+        .view-btn {
+            width: 100%;
+            background: var(--white);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+            text-align: center;
+            display: block;
+            text-decoration: none;
+        }
+
+        .view-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            grid-column: 1 / -1;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--primary-light);
+            margin-bottom: 1rem;
+        }
+
+        .empty-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-gray);
+        }
+
+        .empty-text {
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            grid-column: 1 / -1;
+        }
+
+        .spinner {
+            width: 2.5rem;
+            height: 2.5rem;
+            border: 0.25rem solid rgba(46, 125, 50, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Star Rating */
+        .star {
+            width: 16px;
+            height: 16px;
+        }
+
+        .star-full {
+            fill: #FFB800;
+        }
+
+        .star-half {
+            fill: #FFB800;
+        }
+
+        .star-empty {
+            fill: #e0e0e0;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 1rem;
+            }
+
+            .product-image {
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Search Header -->
+    <header class="search-header">
+        <div class="search-container">
+            <div class="search-bar">
+                <input type="text" id="search-input" class="search-input"
+                    placeholder="Search for organic fruits, vegetables..." autocomplete="off">
+                <button class="search-btn" id="search-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Results -->
+    <main class="results-container">
+        <h1 class="results-title" id="results-title">Search Results</h1>
+        <div class="results-grid" id="search-results">
+            <!-- Results will be loaded here -->
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Get search term from URL or session storage
+            const urlParams = new URLSearchParams(window.location.search);
+            let searchTerm = urlParams.get('q') || sessionStorage.getItem('searchTerm') || '';
+
+            // Update UI
+            document.getElementById('search-input').value = searchTerm;
+            updateResultsTitle(searchTerm);
+
+            if (searchTerm) {
+                await loadSearchResults(searchTerm);
+            }
+
+            // Setup event listeners
+            document.getElementById('search-btn').addEventListener('click', performSearch);
+            document.getElementById('search-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') performSearch();
+            });
+        });
+
+        function updateResultsTitle(term) {
+            const titleEl = document.getElementById('results-title');
+            if (term) {
+                titleEl.textContent = `Results for "${term}"`;
+            } else {
+                titleEl.textContent = `Discover Fresh Products`;
+            }
+        }
+
+        async function loadSearchResults(searchTerm) {
+            const resultsContainer = document.getElementById('search-results');
+
+            try {
+                // Show loading state
+                resultsContainer.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                `;
+
+                const response = await fetch(`/products?search=${encodeURIComponent(searchTerm)}`);
+                if (!response.ok) throw new Error('Failed to fetch search results');
+
+                const products = await response.json();
+
+                // Clear container
+                resultsContainer.innerHTML = '';
+
+                if (products.length === 0) {
+                    showEmptyState(resultsContainer, searchTerm);
+                    return;
+                }
+
+                // Display products
+                products.forEach(product => {
+                    const discount = product.original_price ?
+                        Math.round(((product.original_price - product.price) / product.original_price) * 100) : 0;
+
+                    const productEl = document.createElement('div');
+                    productEl.className = 'product-card';
+                    productEl.innerHTML = `
+                        <a href="product_details.html?product_id=${product.product_id}">
+                            <img src="${product.banner_image_url}" alt="${product.name}" class="product-image">
+                            <div class="product-body">
+                                <h3 class="product-title">${product.name}</h3>
+                                <div class="product-price">
+                                    <span class="current-price">₹${parseFloat(product.price).toFixed(2)}</span>
+                                    ${product.original_price ?
+                            `<span class="original-price">₹${parseFloat(product.original_price).toFixed(2)}</span>` : ''}
+                                    ${discount > 0 ?
+                            `<span class="discount-badge">${discount}% OFF</span>` : ''}
+                                </div>
+                                <div class="product-rating">
+                                    ${generateStars(product.rating)}
+                                    <span class="review-count">(${product.total_reviews || 0})</span>
+                                </div>
+                                <button class="view-btn">View Details</button>
+                            </div>
+                        </a>
+                    `;
+                    resultsContainer.appendChild(productEl);
+                });
+
+            } catch (error) {
+                console.error('Error loading search results:', error);
+                resultsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">⚠️</div>
+                        <h3 class="empty-title">Error Loading Results</h3>
+                        <p class="empty-text">Please try your search again</p>
+                        <button class="view-btn" onclick="window.location.reload()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        function showEmptyState(container, searchTerm) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                        </svg>
+                    </div>
+                    <h3 class="empty-title">No results found</h3>
+                    <p class="empty-text">We couldn't find any matches for "${searchTerm}"</p>
+                    <button class="view-btn" onclick="document.getElementById('search-input').focus()">Try a new search</button>
+                </div>
+            `;
+        }
+
+        function performSearch() {
+            const searchTerm = document.getElementById('search-input').value.trim();
+            if (searchTerm) {
+                sessionStorage.setItem('searchTerm', searchTerm);
+                // Update URL without reload for single-page feel
+                window.history.pushState({}, '', `search.html?q=${encodeURIComponent(searchTerm)}`);
+                updateResultsTitle(searchTerm);
+                loadSearchResults(searchTerm);
+            }
+        }
+
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+            const emptyStars = 5 - fullStars - halfStar;
+
+            return `
+                ${'<svg class="star star-full" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>'.repeat(fullStars)}
+                ${halfStar ? '<svg class="star star-half" viewBox="0 0 24 24"><path d="M12 15.4V6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"/></svg>' : ''}
+                ${'<svg class="star star-empty" viewBox="0 0 24 24"><path d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"/></svg>'.repeat(emptyStars)}
+            `;
+        }
+    </script>
+</body>
+
+</html>

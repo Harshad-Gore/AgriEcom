@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -23,23 +23,43 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 
-
+document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        console.log('Logout button found');
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                console.log('Attempting to sign out...');
+                await signOut(auth);
+                console.log('User signed out successfully');
+                window.location.href = "/account.html"; // Redirect to login page
+                localStorage.clear();
+            } catch (error) {
+                console.error('Error signing out:', error.message);
+                alert('Failed to log out. Please try again.');
+            }
+        });
+    } else {
+        console.error('Logout button not found in the DOM');
+    }
+});
 
 //Function to check if the user is logged in
-// function checkUserAuth() {
-//     onAuthStateChanged(auth, (user) => {
-//         if (window.location.pathname === "/account.html") {
-//             if (user) {
-//                 window.location.href = "/index.html";
-//             }
-//         }
-//         else if (!user) {
-//             window.location.href = "/account.html";
-//         }
-//     });
-// }
+function checkUserAuth() {
+    onAuthStateChanged(auth, (user) => {
+        if (window.location.pathname === "/account.html") {
+            if (user) {
+                window.location.href = "/index.html";
+            }
+        }
+        else if (!user) {
+            window.location.href = "/account.html";
+        }
+    });
+}
 
-// checkUserAuth();
+checkUserAuth();
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -93,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword)
             .then((userCredential) => {
                 const user = userCredential.user;
+                localStorage.setItem('userId', user.uid);
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -128,8 +149,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const loginEmail = document.getElementById('login-email').value;
         const loginPassword = document.getElementById('login-password').value;
         signInWithEmailAndPassword(auth, loginEmail, loginPassword)
-        .then((userCredential) => {
-            const user = userCredential.user;
-          });
+            .then((userCredential) => {
+                const user = userCredential.user;
+                localStorage.setItem('userId', user.uid);
+                localStorage.setItem('userEmail', loginEmail);
+            });
     });
 });
+
+
+
+
