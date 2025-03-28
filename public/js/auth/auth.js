@@ -46,20 +46,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 //Function to check if the user is logged in
-function checkUserAuth() {
-    onAuthStateChanged(auth, (user) => {
-        if (window.location.pathname === "/account.html") {
-            if (user) {
-                window.location.href = "/index.html";
-            }
-        }
-        else if (!user) {
-            window.location.href = "/account.html";
-        }
-    });
-}
+// function checkUserAuth() {
+//     onAuthStateChanged(auth, (user) => {
+//         if (window.location.pathname === "/account.html") {
+//             if (user) {
+//                 window.location.href = "/index.html";
+//             }
+//         }
+//         else if (!user) {
+//             window.location.href = "/account.html";
+//         }
+//     });
+// }
 
-checkUserAuth();
+// checkUserAuth();
 
 document.addEventListener('DOMContentLoaded', () => {
 
